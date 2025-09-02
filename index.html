@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Storage Drive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Google Sans', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #202124;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #dadce0;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            font-weight: 400;
+            color: #5f6368;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 720px;
+            width: 100%;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f1f3f4;
+            transition: all 0.2s;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            background: white;
+            border-color: #4285f4;
+            box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9aa0a6;
+            font-size: 16px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .storage-info-header {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 24px;
+            border: 1px solid #dadce0;
+            font-size: 13px;
+            color: #5f6368;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .storage-info-header:hover {
+            background: #f8f9fa;
+            border-color: #1a73e8;
+        }
+
+        .storage-bar-mini {
+            width: 60px;
+            height: 4px;
+            background: #e8eaed;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .storage-used-mini {
+            height: 100%;
+            background: #4285f4;
+            transition: width 0.3s;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            gap: 16px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            background: white;
+            color: #3c4043;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f8f9fa;
+            border-color: #dadce0;
+            box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+
+        .btn-primary:hover {
+            background: #1557b0;
+            border-color: #1557b0;
+        }
+
+        .view-toggle {
+            display: flex;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #dadce0;
+        }
+
+        .view-btn {
+            padding: 8px 12px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            color: #5f6368;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+
+        .view-btn:hover:not(.active) {
+            background: #f8f9fa;
+        }
+
+        .breadcrumb {
+            padding: 12px 0;
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 16px;
+        }
+
+        .breadcrumb a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .content-area {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dadce0;
+            min-height: 400px;
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .file-list {
+            display: none;
+        }
+
+        .file-list.active {
+            display: block;
+        }
+
+        .file-grid.active {
+            display: grid;
+        }
+
+        .file-item {
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            position: relative;
+        }
+
+        .file-item:hover {
+            border-color: #1a73e8;
+            box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3);
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .file-name {
+            font-size: 14px;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+
+        .file-details {
+            font-size: 12px;
+            color: #5f6368;
+            text-align: center;
+        }
+
+        .list-header {
+            display: grid;
+            grid-template-columns: 3fr 120px 120px 60px;
+            gap: 16px;
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dadce0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #3c4043;
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 3fr 120px 120px 60px;
+            gap: 16px;
+            padding: 12px 24px;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: background 0.2s;
+            align-items: center;
+        }
+
+        .list-item:hover {
+            background: #f8f9fa;
+        }
+
+        .list-item-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .list-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            min-width: 160px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .context-menu-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: #f8f9fa;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(32, 33, 36, 0.6);
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 28px rgba(60, 64, 67, 0.28);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+            width: 480px;
+        }
+
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #dadce0;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #dadce0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #3c4043;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: #5f6368;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: #f8f9fa;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #3c4043;
+        }
+
+        .drag-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 115, 232, 0.9);
+            color: white;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        .drag-content {
+            text-align: center;
+        }
+
+        .drag-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        /* Storage info modal */
+        .storage-modal .modal-content {
+            width: 400px;
+        }
+
+        .storage-details {
+            margin: 20px 0;
+        }
+
+        .storage-bar-large {
+            width: 100%;
+            height: 8px;
+            background: #e8eaed;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .storage-used-large {
+            height: 100%;
+            background: #4285f4;
+            transition: width 0.3s;
+        }
+
+        .storage-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 16px;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .header-left,
+            .header-right {
+                width: 100%;
+            }
+
+            .main-container {
+                padding: 16px;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .toolbar-left {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .file-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .list-header,
+            .list-item {
+                grid-template-columns: 2fr 80px 40px;
+                gap: 8px;
+            }
+
+            .list-header > *:nth-child(3),
+            .list-item > *:nth-child(3) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">📁</div>
+                Storage Drive
+            </div>
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-bar" placeholder="Search in Drive" id="searchBar" oninput="searchFiles()">
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="storage-info-header" onclick="showStorageModal()">
+                <span id="storagePercentage">0%</span>
+                <div class="storage-bar-mini">
+                    <div class="storage-used-mini" id="storageUsedMini"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" onclick="uploadFile()">
+                    <span>📁</span> Upload
+                </button>
+                <button class="btn" onclick="createFile()">
+                    <span>📄</span> New File
+                </button>
+                <button class="btn" onclick="createFolder()">
+                    <span>📁</span> New Folder
+                </button>
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="toggleView('grid')">
+                    <span>⊞</span>
+                </button>
+                <button class="view-btn" onclick="toggleView('list')">
+                    <span>☰</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="breadcrumb" id="breadcrumb">
+            <a href="#" onclick="navigateToPath('')">My Drive</a>
+        </div>
+
+        <div class="content-area">
+            <div class="file-grid active" id="fileGrid">
+                <!-- Files will be rendered here -->
+            </div>
+            <div class="file-list" id="fileList">
+                <div class="list-header">
+                    <div>Name</div>
+                    <div>Modified</div>
+                    <div>Size</div>
+                    <div></div>
+                </div>
+                <div id="fileListContent">
+                    <!-- List items will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="renameItem()">
+            <span>✏️</span> Rename
+        </div>
+        <div class="context-menu-item" onclick="deleteItem()">
+            <span>🗑️</span> Move to trash
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="createFileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Create new file</h2>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>File name</label>
+                    <input type="text" id="newFileName" placeholder="Untitled document">
+                </div>
+                <div class="input-group">
+                    <label>Content</label>
+                    <textarea id="newFileContent" rows="8" placeholder="Enter file content..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('createFileModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveNewFile()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="createFolderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">New folder</h2>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Folder name</label>
+                    <input type="text" id="newFolderName" placeholder="Untitled folder">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('createFolderModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveNewFolder()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="fileViewModal">
+        <div class="modal-content" style="width: 80vw; max-width: 900px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="fileViewTitle">File preview</h2>
+            </div>
+            <div class="modal-body">
+                <div id="fileViewContent">
+                    <!-- File content will be displayed here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('fileViewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="renameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Rename</h2>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Name</label>
+                    <input type="text" id="renameInput">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('renameModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveRename()">Rename</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal storage-modal" id="storageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Storage</h2>
+            </div>
+            <div class="modal-body">
+                <div class="storage-details">
+                    <div class="storage-bar-large">
+                        <div class="storage-used-large" id="storageUsedLarge"></div>
+                    </div>
+                    <div class="storage-stats">
+                        <span id="usedSpaceDetailed">0 MB used</span>
+                        <span id="totalSpaceDetailed">of 0 MB</span>
+                    </div>
+                    <div style="margin-top: 16px; font-size: 14px; color: #5f6368;">
+                        Storage space remaining: <span id="remainingSpaceDetailed">0 MB</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('storageModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drag and Drop Overlay -->
+    <div class="drag-overlay" id="dragOverlay">
+        <div class="drag-content">
+            <div class="drag-icon">📁</div>
+            <div>Drop files here to upload to Drive</div>
+        </div>
+    </div>
+
+    <!-- Hidden file inputs -->
+    <input type="file" id="fileInput" style="display: none" multiple onchange="handleFileUpload(this.files)">
+
+    <script>
+        class StorageSystem {
+            constructor() {
+                this.dbName = 'DriveStorage';
+                this.dbVersion = 1;
+                this.db = null;
+                this.currentPath = '';
+                this.currentContextItem = null;
+                this.maxQuota = 0;
+                this.usedSpace = 0;
+                this.currentView = 'grid';
+                this.init();
+            }
+
+            async init() {
+                await this.initDB();
+                await this.calculateStorageQuota();
+                await this.loadFileSystem();
+                this.setupEventListeners();
+                await this.updateStorageInfo();
+            }
+
+            async initDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.dbVersion);
+                    
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve();
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        
+                        if (!db.objectStoreNames.contains('files')) {
+                            const filesStore = db.createObjectStore('files', { keyPath: 'id' });
+                            filesStore.createIndex('path', 'path', { unique: false });
+                            filesStore.createIndex('name', 'name', { unique: false });
+                        }
+                        
+                        if (!db.objectStoreNames.contains('folders')) {
+                            const foldersStore = db.createObjectStore('folders', { keyPath: 'id' });
+                            foldersStore.createIndex('path', 'path', { unique: false });
+                            foldersStore.createIndex('name', 'name', { unique: false });
+                        }
+                    };
+                });
+            }
+
+            async calculateStorageQuota() {
+                if ('storage' in navigator && 'estimate' in navigator.storage) {
+                    const estimate = await navigator.storage.estimate();
+                    this.maxQuota = estimate.quota || 100 * 1024 * 1024;
+                } else {
+                    this.maxQuota = 100 * 1024 * 1024;
+                }
+            }
+
+            generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            }
+
+            async saveFile(path, name, content, size, type = 'text/plain') {
+                const file = {
+                    id: this.generateId(),
+                    path: path,
+                    name: name,
+                    content: content,
+                    size: size,
+                    type: type,
+                    created: new Date(),
+                    modified: new Date()
+                };
+
+                const transaction = this.db.transaction(['files'], 'readwrite');
+                const store = transaction.objectStore('files');
+                await store.add(file);
+                
+                await this.updateStorageInfo();
+                return file;
+            }
+
+            async saveFolder(path, name) {
+                const folder = {
+                    id: this.generateId(),
+                    path: path,
+                    name: name,
+                    created: new Date()
+                };
+
+                const transaction = this.db.transaction(['folders'], 'readwrite');
+                const store = transaction.objectStore('folders');
+                await store.add(folder);
+                
+                return folder;
+            }
+
+            async getFiles(path = '') {
+                const transaction = this.db.transaction(['files'], 'readonly');
+                const store = transaction.objectStore('files');
+                const index = store.index('path');
+                
+                return new Promise((resolve, reject) => {
+                    const request = index.getAll(path);
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async getFolders(path = '') {
+                const transaction = this.db.transaction(['folders'], 'readonly');
+                const store = transaction.objectStore('folders');
+                const index = store.index('path');
+                
+                return new Promise((resolve, reject) => {
+                    const request = index.getAll(path);
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async deleteFile(id) {
+                const transaction = this.db.transaction(['files'], 'readwrite');
+                const store = transaction.objectStore('files');
+                await store.delete(id);
+                await this.updateStorageInfo();
+            }
+
+            async deleteFolder(id, path, name) {
+                const folderTransaction = this.db.transaction(['folders'], 'readwrite');
+                const folderStore = folderTransaction.objectStore('folders');
+                await folderStore.delete(id);
+
+                const fullPath = path ? `${path}/${name}` : name;
+                await this.deleteItemsInPath(fullPath);
+                await this.updateStorageInfo();
+            }
+
+            async deleteItemsInPath(pathToDelete) {
+                const files = await this.getAllFiles();
+                const filesToDelete = files.filter(file => file.path.startsWith(pathToDelete));
+                
+                for (const file of filesToDelete) {
+                    await this.deleteFile(file.id);
+                }
+
+                const folders = await this.getAllFolders();
+                const foldersToDelete = folders.filter(folder => {
+                    const folderFullPath = folder.path ? `${folder.path}/${folder.name}` : folder.name;
+                    return folderFullPath.startsWith(pathToDelete);
+                });
+                
+                for (const folder of foldersToDelete) {
+                    const folderTransaction = this.db.transaction(['folders'], 'readwrite');
+                    const folderStore = folderTransaction.objectStore('folders');
+                    await folderStore.delete(folder.id);
+                }
+            }
+
+            async getAllFiles() {
+                const transaction = this.db.transaction(['files'], 'readonly');
+                const store = transaction.objectStore('files');
+                
+                return new Promise((resolve, reject) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async getAllFolders() {
+                const transaction = this.db.transaction(['folders'], 'readonly');
+                const store = transaction.objectStore('folders');
+                
+                return new Promise((resolve, reject) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            async updateFile(id, updates) {
+                const transaction = this.db.transaction(['files'], 'readwrite');
+                const store = transaction.objectStore('files');
+                
+                const file = await new Promise((resolve, reject) => {
+                    const request = store.get(id);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+
+                if (file) {
+                    Object.assign(file, updates);
+                    file.modified = new Date();
+                    await store.put(file);
+                }
+                
+                await this.updateStorageInfo();
+            }
+
+            async updateFolder(id, updates) {
+                const transaction = this.db.transaction(['folders'], 'readwrite');
+                const store = transaction.objectStore('folders');
+                
+                const folder = await new Promise((resolve, reject) => {
+                    const request = store.get(id);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+
+                if (folder) {
+                    Object.assign(folder, updates);
+                    await store.put(folder);
+                }
+            }
+
+            async loadFileSystem() {
+                await this.renderCurrentFolder();
+            }
+
+            async renderCurrentFolder() {
+                const files = await this.getFiles(this.currentPath);
+                const folders = await this.getFolders(this.currentPath);
+                
+                this.updateBreadcrumb();
+                
+                if (files.length === 0 && folders.length === 0) {
+                    const emptyState = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📁</div>
+                            <div class="empty-title">Drop files here or use the upload button</div>
+                            <p>This folder is empty</p>
+                        </div>
+                    `;
+                    document.getElementById('fileGrid').innerHTML = emptyState;
+                    document.getElementById('fileListContent').innerHTML = emptyState;
+                    return;
+                }
+
+                if (this.currentView === 'grid') {
+                    this.renderGridView(files, folders);
+                } else {
+                    this.renderListView(files, folders);
+                }
+            }
+
+            renderGridView(files, folders) {
+                const fileGrid = document.getElementById('fileGrid');
+                let html = '';
+                
+                folders.forEach(folder => {
+                    html += `
+                        <div class="file-item" ondblclick="navigateToFolder('${folder.name}')" oncontextmenu="showContextMenu(event, 'folder', '${folder.id}', '${folder.name}')">
+                            <div class="file-icon">📁</div>
+                            <div class="file-name">${folder.name}</div>
+                            <div class="file-details">Folder</div>
+                        </div>
+                    `;
+                });
+                
+                files.forEach(file => {
+                    const icon = this.getFileIcon(file.type, file.name);
+                    const size = this.formatFileSize(file.size);
+                    
+                    html += `
+                        <div class="file-item" ondblclick="openFile('${file.id}')" oncontextmenu="showContextMenu(event, 'file', '${file.id}', '${file.name}')">
+                            <div class="file-icon">${icon}</div>
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-details">${size}</div>
+                        </div>
+                    `;
+                });
+                
+                fileGrid.innerHTML = html;
+            }
+
+            renderListView(files, folders) {
+                const fileListContent = document.getElementById('fileListContent');
+                let html = '';
+                
+                folders.forEach(folder => {
+                    html += `
+                        <div class="list-item" ondblclick="navigateToFolder('${folder.name}')" oncontextmenu="showContextMenu(event, 'folder', '${folder.id}', '${folder.name}')">
+                            <div class="list-item-name">
+                                <div class="list-icon">📁</div>
+                                <span>${folder.name}</span>
+                            </div>
+                            <div>${this.formatDate(folder.created)}</div>
+                            <div>—</div>
+                            <div></div>
+                        </div>
+                    `;
+                });
+                
+                files.forEach(file => {
+                    const icon = this.getFileIcon(file.type, file.name);
+                    const size = this.formatFileSize(file.size);
+                    
+                    html += `
+                        <div class="list-item" ondblclick="openFile('${file.id}')" oncontextmenu="showContextMenu(event, 'file', '${file.id}', '${file.name}')">
+                            <div class="list-item-name">
+                                <div class="list-icon">${icon}</div>
+                                <span>${file.name}</span>
+                            </div>
+                            <div>${this.formatDate(file.modified)}</div>
+                            <div>${size}</div>
+                            <div></div>
+                        </div>
+                    `;
+                });
+                
+                fileListContent.innerHTML = html;
+            }
+
+            formatDate(date) {
+                if (!date) return '—';
+                const d = new Date(date);
+                const now = new Date();
+                const diffTime = Math.abs(now - d);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 1) return 'Yesterday';
+                if (diffDays < 7) return `${diffDays} days ago`;
+                if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+                
+                return d.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            }
+
+            getFileIcon(type, name) {
+                const ext = name.split('.').pop().toLowerCase();
+                
+                if (type.startsWith('image/')) return '🖼️';
+                if (type.startsWith('video/')) return '🎥';
+                if (type.startsWith('audio/')) return '🎵';
+                if (type === 'application/pdf') return '📄';
+                if (['doc', 'docx'].includes(ext)) return '📝';
+                if (['xls', 'xlsx'].includes(ext)) return '📊';
+                if (['ppt', 'pptx'].includes(ext)) return '📋';
+                if (['zip', 'rar', '7z'].includes(ext)) return '🗜️';
+                if (['js', 'html', 'css', 'json', 'xml'].includes(ext)) return '💻';
+                if (['txt', 'md'].includes(ext)) return '📄';
+                
+                return '📄';
+            }
+
+            formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            updateBreadcrumb() {
+                const breadcrumb = document.getElementById('breadcrumb');
+                const parts = this.currentPath ? this.currentPath.split('/') : [];
+                
+                let html = `<a href="#" onclick="navigateToPath('')">My Drive</a>`;
+                let path = '';
+                
+                parts.forEach((part, index) => {
+                    path = parts.slice(0, index + 1).join('/');
+                    html += ` > <a href="#" onclick="navigateToPath('${path}')">${part}</a>`;
+                });
+                
+                breadcrumb.innerHTML = html;
+            }
+
+            async updateStorageInfo() {
+                const files = await this.getAllFiles();
+                this.usedSpace = files.reduce((total, file) => total + (file.size || 0), 0);
+                
+                const usedMB = (this.usedSpace / (1024 * 1024)).toFixed(1);
+                const totalMB = (this.maxQuota / (1024 * 1024)).toFixed(1);
+                const remainingMB = ((this.maxQuota - this.usedSpace) / (1024 * 1024)).toFixed(1);
+                const percentage = ((this.usedSpace / this.maxQuota) * 100).toFixed(1);
+                
+                // Header storage info
+                document.getElementById('storagePercentage').textContent = `${percentage}%`;
+                document.getElementById('storageUsedMini').style.width = `${percentage}%`;
+                
+                // Modal storage info
+                document.getElementById('usedSpaceDetailed').textContent = `${usedMB} MB used`;
+                document.getElementById('totalSpaceDetailed').textContent = `of ${totalMB} MB`;
+                document.getElementById('remainingSpaceDetailed').textContent = `${remainingMB} MB`;
+                document.getElementById('storageUsedLarge').style.width = `${percentage}%`;
+            }
+
+            setupEventListeners() {
+                const container = document.body;
+                const dragOverlay = document.getElementById('dragOverlay');
+                
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    container.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                });
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    container.addEventListener(eventName, () => {
+                        dragOverlay.style.display = 'flex';
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    container.addEventListener(eventName, () => {
+                        dragOverlay.style.display = 'none';
+                    });
+                });
+
+                container.addEventListener('drop', (e) => {
+                    const files = Array.from(e.dataTransfer.files);
+                    this.handleFiles(files);
+                });
+
+                document.addEventListener('click', () => {
+                    document.getElementById('contextMenu').style.display = 'none';
+                });
+            }
+
+            async handleFiles(files) {
+                for (const file of files) {
+                    if (file.size + this.usedSpace > this.maxQuota) {
+                        alert(`File "${file.name}" is too large. Not enough storage space.`);
+                        continue;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            await this.saveFile(
+                                this.currentPath,
+                                file.name,
+                                e.target.result,
+                                file.size,
+                                file.type
+                            );
+                            await this.loadFileSystem();
+                        } catch (error) {
+                            alert(`Error uploading file "${file.name}": ${error.message}`);
+                        }
+                    };
+
+                    if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+                        reader.readAsText(file);
+                    } else {
+                        reader.readAsDataURL(file);
+                    }
+                }
+            }
+
+            async searchFiles() {
+                const query = document.getElementById('searchBar').value.toLowerCase().trim();
+                if (!query) {
+                    await this.renderCurrentFolder();
+                    return;
+                }
+
+                const allFiles = await this.getAllFiles();
+                const allFolders = await this.getAllFolders();
+                
+                const matchedFiles = allFiles.filter(file => 
+                    file.name.toLowerCase().includes(query)
+                );
+                
+                const matchedFolders = allFolders.filter(folder => 
+                    folder.name.toLowerCase().includes(query)
+                );
+
+                if (matchedFiles.length === 0 && matchedFolders.length === 0) {
+                    const emptyState = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🔍</div>
+                            <div class="empty-title">No results found</div>
+                            <p>Try different keywords</p>
+                        </div>
+                    `;
+                    document.getElementById('fileGrid').innerHTML = emptyState;
+                    document.getElementById('fileListContent').innerHTML = emptyState;
+                    return;
+                }
+
+                if (this.currentView === 'grid') {
+                    this.renderSearchGridView(matchedFiles, matchedFolders);
+                } else {
+                    this.renderSearchListView(matchedFiles, matchedFolders);
+                }
+            }
+
+            renderSearchGridView(files, folders) {
+                const fileGrid = document.getElementById('fileGrid');
+                let html = '';
+                
+                folders.forEach(folder => {
+                    const fullPath = folder.path ? `${folder.path}/${folder.name}` : folder.name;
+                    html += `
+                        <div class="file-item" ondblclick="navigateToPath('${fullPath}')" oncontextmenu="showContextMenu(event, 'folder', '${folder.id}', '${folder.name}')">
+                            <div class="file-icon">📁</div>
+                            <div class="file-name">${folder.name}</div>
+                            <div class="file-details">Folder • ${folder.path || 'My Drive'}</div>
+                        </div>
+                    `;
+                });
+
+                files.forEach(file => {
+                    const icon = this.getFileIcon(file.type, file.name);
+                    const size = this.formatFileSize(file.size);
+                    
+                    html += `
+                        <div class="file-item" ondblclick="openFile('${file.id}')" oncontextmenu="showContextMenu(event, 'file', '${file.id}', '${file.name}')">
+                            <div class="file-icon">${icon}</div>
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-details">${size} • ${file.path || 'My Drive'}</div>
+                        </div>
+                    `;
+                });
+                
+                fileGrid.innerHTML = html;
+            }
+
+            renderSearchListView(files, folders) {
+                const fileListContent = document.getElementById('fileListContent');
+                let html = '';
+                
+                folders.forEach(folder => {
+                    html += `
+                        <div class="list-item" ondblclick="navigateToPath('${folder.path ? folder.path + '/' + folder.name : folder.name}')" oncontextmenu="showContextMenu(event, 'folder', '${folder.id}', '${folder.name}')">
+                            <div class="list-item-name">
+                                <div class="list-icon">📁</div>
+                                <span>${folder.name} <small style="color: #5f6368;">in ${folder.path || 'My Drive'}</small></span>
+                            </div>
+                            <div>${this.formatDate(folder.created)}</div>
+                            <div>—</div>
+                            <div></div>
+                        </div>
+                    `;
+                });
+                
+                files.forEach(file => {
+                    const icon = this.getFileIcon(file.type, file.name);
+                    const size = this.formatFileSize(file.size);
+                    
+                    html += `
+                        <div class="list-item" ondblclick="openFile('${file.id}')" oncontextmenu="showContextMenu(event, 'file', '${file.id}', '${file.name}')">
+                            <div class="list-item-name">
+                                <div class="list-icon">${icon}</div>
+                                <span>${file.name} <small style="color: #5f6368;">in ${file.path || 'My Drive'}</small></span>
+                            </div>
+                            <div>${this.formatDate(file.modified)}</div>
+                            <div>${size}</div>
+                            <div></div>
+                        </div>
+                    `;
+                });
+                
+                fileListContent.innerHTML = html;
+            }
+        }
+
+        let storageSystem;
+
+        window.onload = async () => {
+            storageSystem = new StorageSystem();
+        };
+
+        function uploadFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        function createFile() {
+            document.getElementById('createFileModal').style.display = 'block';
+            document.getElementById('newFileName').focus();
+        }
+
+        function createFolder() {
+            document.getElementById('createFolderModal').style.display = 'block';
+            document.getElementById('newFolderName').focus();
+        }
+
+        function toggleView(view) {
+            storageSystem.currentView = view;
+            
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const grid = document.getElementById('fileGrid');
+            const list = document.getElementById('fileList');
+            
+            if (view === 'grid') {
+                grid.classList.add('active');
+                list.classList.remove('active');
+            } else {
+                grid.classList.remove('active');
+                list.classList.add('active');
+            }
+            
+            storageSystem.renderCurrentFolder();
+        }
+
+        function showStorageModal() {
+            document.getElementById('storageModal').style.display = 'block';
+        }
+
+        async function saveNewFile() {
+            const name = document.getElementById('newFileName').value.trim();
+            const content = document.getElementById('newFileContent').value;
+            
+            if (!name) {
+                alert('Please enter a file name');
+                return;
+            }
+
+            try {
+                const size = new Blob([content]).size;
+                if (size + storageSystem.usedSpace > storageSystem.maxQuota) {
+                    alert('Not enough storage space for this file');
+                    return;
+                }
+
+                await storageSystem.saveFile(storageSystem.currentPath, name, content, size, 'text/plain');
+                await storageSystem.loadFileSystem();
+                closeModal('createFileModal');
+                
+                document.getElementById('newFileName').value = '';
+                document.getElementById('newFileContent').value = '';
+            } catch (error) {
+                alert('Error creating file: ' + error.message);
+            }
+        }
+
+        async function saveNewFolder() {
+            const name = document.getElementById('newFolderName').value.trim();
+            
+            if (!name) {
+                alert('Please enter a folder name');
+                return;
+            }
+
+            try {
+                await storageSystem.saveFolder(storageSystem.currentPath, name);
+                await storageSystem.loadFileSystem();
+                closeModal('createFolderModal');
+                
+                document.getElementById('newFolderName').value = '';
+            } catch (error) {
+                alert('Error creating folder: ' + error.message);
+            }
+        }
+
+        async function navigateToPath(path) {
+            storageSystem.currentPath = path;
+            await storageSystem.loadFileSystem();
+            document.getElementById('searchBar').value = '';
+        }
+
+        async function navigateToFolder(folderName) {
+            const newPath = storageSystem.currentPath ? `${storageSystem.currentPath}/${folderName}` : folderName;
+            await navigateToPath(newPath);
+        }
+
+        async function openFile(fileId) {
+            try {
+                const transaction = storageSystem.db.transaction(['files'], 'readonly');
+                const store = transaction.objectStore('files');
+                const request = store.get(fileId);
+                
+                request.onsuccess = () => {
+                    const file = request.result;
+                    if (!file) return;
+
+                    const modal = document.getElementById('fileViewModal');
+                    const title = document.getElementById('fileViewTitle');
+                    const content = document.getElementById('fileViewContent');
+                    
+                    title.textContent = file.name;
+                    
+                    if (file.type.startsWith('image/')) {
+                        content.innerHTML = `<img src="${file.content}" style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 4px;">`;
+                    } else if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+                        content.innerHTML = `<textarea style="width: 100%; height: 400px; font-family: 'Roboto Mono', monospace; border: 1px solid #dadce0; border-radius: 4px; padding: 12px; resize: none;" readonly>${file.content}</textarea>`;
+                    } else if (file.type === 'application/pdf') {
+                        content.innerHTML = `<embed src="${file.content}" width="100%" height="500px" type="application/pdf" style="border-radius: 4px;">`;
+                    } else {
+                        content.innerHTML = `
+                            <div style="text-align: center; padding: 40px;">
+                                <div style="font-size: 48px; margin-bottom: 20px;">📄</div>
+                                <h3 style="margin-bottom: 8px;">${file.name}</h3>
+                                <p style="color: #5f6368; margin-bottom: 8px;">File type: ${file.type}</p>
+                                <p style="color: #5f6368; margin-bottom: 20px;">Size: ${storageSystem.formatFileSize(file.size)}</p>
+                                <a href="${file.content}" download="${file.name}" class="btn btn-primary" style="text-decoration: none;">Download file</a>
+                            </div>
+                        `;
+                    }
+                    
+                    modal.style.display = 'block';
+                };
+            } catch (error) {
+                alert('Error opening file: ' + error.message);
+            }
+        }
+
+        function showContextMenu(event, type, id, name) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = event.pageX + 'px';
+            contextMenu.style.top = event.pageY + 'px';
+            
+            storageSystem.currentContextItem = { type, id, name };
+        }
+
+        function renameItem() {
+            if (!storageSystem.currentContextItem) return;
+            
+            const modal = document.getElementById('renameModal');
+            const input = document.getElementById('renameInput');
+            
+            input.value = storageSystem.currentContextItem.name;
+            modal.style.display = 'block';
+            input.focus();
+            input.select();
+            
+            document.getElementById('contextMenu').style.display = 'none';
+        }
+
+        async function saveRename() {
+            if (!storageSystem.currentContextItem) return;
+            
+            const newName = document.getElementById('renameInput').value.trim();
+            if (!newName) {
+                alert('Please enter a name');
+                return;
+            }
+
+            try {
+                const { type, id } = storageSystem.currentContextItem;
+                
+                if (type === 'file') {
+                    await storageSystem.updateFile(id, { name: newName });
+                } else {
+                    await storageSystem.updateFolder(id, { name: newName });
+                }
+                
+                await storageSystem.loadFileSystem();
+                closeModal('renameModal');
+                
+                storageSystem.currentContextItem = null;
+            } catch (error) {
+                alert('Error renaming item: ' + error.message);
+            }
+        }
+
+        async function deleteItem() {
+            if (!storageSystem.currentContextItem) return;
+            
+            const { type, id, name } = storageSystem.currentContextItem;
+            
+            if (!confirm(`Move "${name}" to trash?`)) return;
+
+            try {
+                if (type === 'file') {
+                    await storageSystem.deleteFile(id);
+                } else {
+                    const folders = await storageSystem.getAllFolders();
+                    const folder = folders.find(f => f.id === id);
+                    if (folder) {
+                        await storageSystem.deleteFolder(id, folder.path, folder.name);
+                    }
+                }
+                
+                await storageSystem.loadFileSystem();
+                document.getElementById('contextMenu').style.display = 'none';
+                storageSystem.currentContextItem = null;
+            } catch (error) {
+                alert('Error deleting item: ' + error.message);
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        async function handleFileUpload(files) {
+            await storageSystem.handleFiles(Array.from(files));
+        }
+
+        async function searchFiles() {
+            await storageSystem.searchFiles();
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'u':
+                        e.preventDefault();
+                        uploadFile();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            createFolder();
+                        } else {
+                            createFile();
+                        }
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('searchBar').focus();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.style.display = 'none';
+                });
+                document.getElementById('contextMenu').style.display = 'none';
+            }
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
