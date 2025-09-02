@@ -230,7 +230,7 @@
         }
 
         .file-grid {
-            display: grid;
+            display: none;
             grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 16px;
             padding: 24px;
@@ -565,7 +565,7 @@
         <div class="header-left">
             <div class="logo">
                 <div class="logo-icon">📁</div>
-                Storage Drive
+                StorageDrive
             </div>
             <div class="search-container">
                 <span class="search-icon">🔍</span>
@@ -596,10 +596,10 @@
                 </button>
             </div>
             <div class="view-toggle">
-                <button class="view-btn active" onclick="toggleView('grid')">
+                <button class="view-btn active" onclick="toggleView('grid', this)">
                     <span>⊞</span>
                 </button>
-                <button class="view-btn" onclick="toggleView('list')">
+                <button class="view-btn" onclick="toggleView('list', this)">
                     <span>☰</span>
                 </button>
             </div>
@@ -611,8 +611,7 @@
 
         <div class="content-area">
             <div class="file-grid active" id="fileGrid">
-                <!-- Files will be rendered here -->
-            </div>
+                </div>
             <div class="file-list" id="fileList">
                 <div class="list-header">
                     <div>Name</div>
@@ -621,13 +620,11 @@
                     <div></div>
                 </div>
                 <div id="fileListContent">
-                    <!-- List items will be rendered here -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
 
-    <!-- Context Menu -->
     <div class="context-menu" id="contextMenu">
         <div class="context-menu-item" onclick="renameItem()">
             <span>✏️</span> Rename
@@ -637,7 +634,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div class="modal" id="createFileModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -685,8 +681,7 @@
             </div>
             <div class="modal-body">
                 <div id="fileViewContent">
-                    <!-- File content will be displayed here -->
-                </div>
+                    </div>
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="closeModal('fileViewModal')">Close</button>
@@ -737,7 +732,6 @@
         </div>
     </div>
 
-    <!-- Drag and Drop Overlay -->
     <div class="drag-overlay" id="dragOverlay">
         <div class="drag-content">
             <div class="drag-icon">📁</div>
@@ -745,7 +739,6 @@
         </div>
     </div>
 
-    <!-- Hidden file inputs -->
     <input type="file" id="fileInput" style="display: none" multiple onchange="handleFileUpload(this.files)">
 
     <script>
@@ -973,6 +966,10 @@
                 const files = await this.getFiles(this.currentPath);
                 const folders = await this.getFolders(this.currentPath);
                 
+                // Sort folders and files alphabetically
+                folders.sort((a, b) => a.name.localeCompare(b.name));
+                files.sort((a, b) => a.name.localeCompare(b.name));
+
                 this.updateBreadcrumb();
                 
                 if (files.length === 0 && folders.length === 0) {
@@ -1223,6 +1220,10 @@
                     folder.name.toLowerCase().includes(query)
                 );
 
+                // Sort search results
+                matchedFolders.sort((a, b) => a.name.localeCompare(b.name));
+                matchedFiles.sort((a, b) => a.name.localeCompare(b.name));
+
                 if (matchedFiles.length === 0 && matchedFolders.length === 0) {
                     const emptyState = `
                         <div class="empty-state">
@@ -1333,11 +1334,11 @@
             document.getElementById('newFolderName').focus();
         }
 
-        function toggleView(view) {
+        function toggleView(view, btnElement) {
             storageSystem.currentView = view;
             
             document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            btnElement.classList.add('active');
             
             const grid = document.getElementById('fileGrid');
             const list = document.getElementById('fileList');
